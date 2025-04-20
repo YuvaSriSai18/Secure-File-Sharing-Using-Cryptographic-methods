@@ -5,7 +5,7 @@ export const decryptFile = (encryptedData64, aesKey, iv64, tag64) => {
   const iv = forge.util.decode64(iv64);
   const tag = forge.util.decode64(tag64);
 
-  const decipher = forge.cipher.createDecipher('AES-GCM', aesKey);
+  const decipher = forge.cipher.createDecipher("AES-GCM", aesKey);
   decipher.start({
     iv: iv,
     tagLength: 128,

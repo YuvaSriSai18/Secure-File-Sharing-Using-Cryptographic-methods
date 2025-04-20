@@ -50,14 +50,14 @@ export default function SignIn() {
           toastRef.current.showToast({
             severity: "success",
             summary: "Public Key Fetched",
-            detail: res.data.msg,
+            detail: res.data.message,
           });
         })
         .catch((err) => {
           toastRef.current.showToast({
             severity: "warn",
             summary: "Error in Fetching Public Key",
-            detail: err.response?.data?.msg || "Something went wrong",
+            detail: err.response?.data?.message || "Something went wrong",
           });
         });
 
@@ -68,14 +68,14 @@ export default function SignIn() {
           toastRef.current.showToast({
             severity: "success",
             summary: "Private Key Fetched",
-            detail: res.data.msg,
+            detail: res.data.message,
           });
         })
         .catch((err) => {
           toastRef.current.showToast({
             severity: "warn",
             summary: "Error in Fetching Private Key",
-            detail: err.response?.data?.msg || "Something went wrong",
+            detail: err.response?.data?.message || "Something went wrong",
           });
         });
 

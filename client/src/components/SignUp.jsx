@@ -37,7 +37,7 @@ export default function SignUp() {
       toastRef.current.showToast({
         severity: "success",
         summary: "Registration Successful",
-        detail: res.data.msg,
+        detail: res.data.message,
       });
 
       setTimeout(() => window.location.reload(), 1500);
@@ -46,7 +46,7 @@ export default function SignUp() {
         severity: "error",
         summary: "Registration Failed",
         detail:
-          err.response?.data?.msg ||
+          err.response?.data?.message ||
           "An unexpected error occurred. Please try again.",
       });
     }

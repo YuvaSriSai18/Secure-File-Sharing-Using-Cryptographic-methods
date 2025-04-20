@@ -10,7 +10,12 @@ export const registerUser = async (userData) =>
 export const loginUser = async (userData) =>
   await API.post("/api/auth/login", userData);
 
-export const getUsers = async () => await API.get("/api/auth/users");
+export const getUsers = async (token) =>
+  await API.get("/api/auth/users", {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
 
 export const getPublicKey = async (userId, token) =>
   await API.get(`/api/auth/public-key/${userId}`, {

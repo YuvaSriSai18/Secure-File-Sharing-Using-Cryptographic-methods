@@ -12,18 +12,16 @@ const fileSchema = new mongoose.Schema(
       ref: "User",
       required: true,
     },
-
-    encryptedFileData: { type: Buffer, required: true }, // Stored as binary
-    encryptedAESKey: { type: String, required: true }, // Base64 encoded RSA-encrypted key
-
-    encryptedMetadata: {
+    message: { type: String },
+    encryptedFileData: { type: String, required: true },
+    encryptedAESKey: { type: String, required: true },
+    iv: { type: String, required: true },
+    tag: { type: String, required: true },
+    metaData: {
       fileName: { type: String },
       fileType: { type: String },
       fileSize: { type: Number },
     },
-
-    isDownloaded: { type: Boolean, default: false },
-    downloadedAt: { type: Date },
   },
   { timestamps: true }
 );

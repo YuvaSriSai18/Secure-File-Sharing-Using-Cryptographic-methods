@@ -1,5 +1,5 @@
-import forge from 'node-forge'
-const password = import.meta.env.VITE_AES_KEY
+import forge from "node-forge";
+const password = import.meta.env.VITE_AES_KEY;
 
 const decryptPrivateKey = (encryptedPayload) => {
   const payload = forge.util.decode64(encryptedPayload);
@@ -32,4 +32,4 @@ const decryptPrivateKey = (encryptedPayload) => {
   return decipher.output.toString("utf8");
 };
 
-export default decryptPrivateKey ;
+export default decryptPrivateKey;
