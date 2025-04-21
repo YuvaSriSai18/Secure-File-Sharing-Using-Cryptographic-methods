@@ -30,3 +30,10 @@ export const getPrivateKey = async (userId, token) =>
       Authorization: `Bearer ${token}`,
     },
   });
+
+export const getReceivedFiles = async (token) =>
+  await API.get("api/files/my-files/", {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });

@@ -1,5 +1,15 @@
 const mongoose = require("mongoose");
-
+const file = mongoose.Schema({
+  encryptedFileData: { type: String, required: true },
+  encryptedAESKey: { type: String, required: true },
+  iv: { type: String, required: true },
+  tag: { type: String, required: true },
+  metadata: {
+    fileName: { type: String },
+    fileType: { type: String },
+    fileSize: { type: Number },
+  },
+});
 const fileSchema = new mongoose.Schema(
   {
     sender: {
@@ -13,15 +23,7 @@ const fileSchema = new mongoose.Schema(
       required: true,
     },
     message: { type: String },
-    encryptedFileData: { type: String, required: true },
-    encryptedAESKey: { type: String, required: true },
-    iv: { type: String, required: true },
-    tag: { type: String, required: true },
-    metaData: {
-      fileName: { type: String },
-      fileType: { type: String },
-      fileSize: { type: Number },
-    },
+    files: { type: [file] },
   },
   { timestamps: true }
 );

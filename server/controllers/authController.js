@@ -105,8 +105,10 @@ const getEncryptedPrivateKey = async (req, res) => {
 };
 
 const getUsers = async (req, res) => {
+  const userId = req.user.userId;
+  // console.log(userId);
   try {
-    const users = await User.find().select("-password"); // Exclude password field
+    const users = await User.find({ _id: { $ne: userId } }).select("-password"); // Exclude password field
     res.status(200).json(users); // Send users as response
   } catch (error) {
     console.error("Error fetching users:", error);

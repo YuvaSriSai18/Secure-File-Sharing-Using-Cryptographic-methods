@@ -39,15 +39,15 @@ export default function File_Upload({ onFilesEncrypted }) {
 
       // Generate AES key and encrypt the file with it
       const aesKey = generateAesKey();
-      const { encryptedData, iv, tag } = encryptFile(fileBytes, aesKey);
+      const { encryptedFileData, iv, tag } = encryptFile(fileBytes, aesKey);
 
       // Encrypt the AES key with RSA
-      const encryptedKey = encryptAesKeyWithRsa(aesKey, rsaPublicKeyPem);
+      const encryptedAESKey = encryptAesKeyWithRsa(aesKey, rsaPublicKeyPem);
 
       // Create a payload object containing the encrypted data
       const payload = {
-        encryptedData, // The encrypted file data
-        encryptedKey, // The RSA encrypted AES key
+        encryptedFileData, // The encrypted file data
+        encryptedAESKey, // The RSA encrypted AES key
         iv, // The IV used for AES encryption
         tag, // The tag for AES encryption
         metadata: {
@@ -56,7 +56,6 @@ export default function File_Upload({ onFilesEncrypted }) {
           fileType: file.type,
         },
       };
-
       processedPayloads.push(payload);
 
       // Update the file status to completed

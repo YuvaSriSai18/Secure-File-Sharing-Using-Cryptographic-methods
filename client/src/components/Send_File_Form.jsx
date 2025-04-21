@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import File_Upload from "../components/File_Upload";
-import Receiver from "../components/Receiver";
+import Select_Receiver from "./Select_Receiver";
 import Input_Component from "../components/Input_Component";
 
 export default function Send_File_Form() {
@@ -46,7 +46,7 @@ export default function Send_File_Form() {
   };
   return (
     <div className="p-4 space-y-4 border w-5/6 m-auto rounded-lg mt-10">
-      <Receiver onUserSelect={handleUserSelect} />
+      <Select_Receiver onUserSelect={handleUserSelect} />
 
       <Input_Component
         value={Message.message}

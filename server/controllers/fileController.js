@@ -8,44 +8,31 @@ const {
   encryptAESKey,
   decryptAESKey,
 } = require("../utils/cryptoUtils");
+
 const uploadFile = async (req, res) => {
   try {
-    const { receiverEmail, fileName, fileType, metaData, fileContent } =
-      req.body;
-    const senderId = req.user.userId;
-
-    // 1. Generate AES-256 key and IV
-    const { aesKey, iv } = generateAESKey();
-
-    // 2. Encrypt the file content
-    const encryptedFile = encryptFileContent(fileContent, aesKey, iv);
-
-    // 3. Get receiver's public key
-    const receiver = await User.findOne({ email: receiverEmail });
-    if (!receiver)
+    const { sender, receiver, message, files } = req.body;
+    // 1. Validate receiver existence
+    const receiverUser = await User.findById(receiver);
+    if (!receiverUser) {
       return res.status(404).json({ message: "Receiver not found" });
+    }
 
-    // 4. Encrypt AES key with receiver's public key
-    const encryptedAESKey = encryptAESKey(aesKey, receiver.publicKey);
-
-    // 5. Save file to DB
-    const newFile = new File({
-      sender: senderId,
-      receiver: receiver._id,
-      fileName,
-      fileType,
-      metaData,
-      encryptedFile,
-      encryptedAESKey,
+    // 2. Save the encrypted file + message in DB
+    const newFileMessage = new File({
+      sender,
+      receiver,
+      message,
+      files, // already encrypted file array from client
     });
 
-    await newFile.save();
+    await newFileMessage.save();
 
     res
       .status(201)
-      .json({ message: "File uploaded and encrypted successfully" });
+      .json({ message: "Message with encrypted files saved successfully." });
   } catch (err) {
-    console.error(err);
+    console.error("Upload failed:", err);
     res.status(500).json({ message: "Upload failed", error: err.message });
   }
 };
@@ -88,13 +75,18 @@ const downloadFile = async (req, res) => {
 const getMyFiles = async (req, res) => {
   try {
     const userId = req.user.userId;
-    const files = await File.find({
-      $or: [{ sender: userId }, { receiver: userId }],
-    }).populate("sender receiver");
+
+    const files = await File.find({ receiver: userId })
+      .populate("sender", "name email") // populate useful sender info only
+      .sort({ index: 1 });
+
+    // if (!files || files.length === 0) {
+    //   return res.status(404).json({ message: "No files found for this user." });
+    // }
 
     res.status(200).json({ files });
   } catch (err) {
-    console.error(err);
+    console.error("Error fetching files:", err);
     res
       .status(500)
       .json({ message: "Failed to fetch files", error: err.message });

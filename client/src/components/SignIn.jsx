@@ -65,11 +65,7 @@ export default function SignIn() {
         .then((res) => {
           const privateKey = decryptPrivateKey(res.data.encryptedPrivateKey);
           localStorage.setItem("privateKey", privateKey);
-          toastRef.current.showToast({
-            severity: "success",
-            summary: "Private Key Fetched",
-            detail: res.data.message,
-          });
+c
         })
         .catch((err) => {
           toastRef.current.showToast({

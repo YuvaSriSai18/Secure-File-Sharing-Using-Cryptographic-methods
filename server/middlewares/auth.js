@@ -12,7 +12,7 @@ const createTokenVerifier = (strict = false) => {
       if (strict && req.params.userId !== req.user.userId) {
         return res.status(401).json({ message: "Unauthorized Access" });
       }
-
+      // console.log(req.user);
       next();
     } catch (err) {
       return res.status(403).json({ message: "Invalid or expired token" });

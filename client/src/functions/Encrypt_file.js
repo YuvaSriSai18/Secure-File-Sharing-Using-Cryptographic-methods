@@ -27,7 +27,7 @@ export const encryptFile = (fileBuffer, aesKey) => {
   const tag = cipher.mode.tag.getBytes();
 
   return {
-    encryptedData: forge.util.encode64(encrypted),
+    encryptedFileData: forge.util.encode64(encrypted),
     iv: forge.util.encode64(iv),
     tag: forge.util.encode64(tag),
   };
