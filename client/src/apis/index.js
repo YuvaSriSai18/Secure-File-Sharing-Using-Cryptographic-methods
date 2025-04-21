@@ -37,3 +37,10 @@ export const getReceivedFiles = async (token) =>
       Authorization: `Bearer ${token}`,
     },
   });
+
+export const uploadMessage = async (payload, token) =>
+  await API.post("/api/files/upload", payload, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });

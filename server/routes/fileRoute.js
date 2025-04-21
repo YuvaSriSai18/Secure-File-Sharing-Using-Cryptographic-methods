@@ -2,7 +2,7 @@
 
 const express = require("express");
 const router = express.Router();
-const auth = require("../middlewares/auth"); 
+const auth = require("../middlewares/auth");
 const {
   uploadFile,
   downloadFile,
@@ -12,7 +12,7 @@ const {
 } = require("../controllers/fileController");
 
 // Get All Files Sent/Received
-router.get("/my-files/",auth.verifyToken , getMyFiles);
+router.get("/my-files/", auth.verifyToken, getMyFiles);
 
 // Download Encrypted File by ID
 router.get("/download/:fileId", auth.verifyToken, downloadEncryptedFile);
@@ -21,6 +21,6 @@ router.get("/download/:fileId", auth.verifyToken, downloadEncryptedFile);
 router.post("/mark-downloaded/:fileId", auth.verifyToken, markAsDownloaded);
 
 // Upload Encrypted File (Add a POST route for uploading files)
-router.post("/upload",  uploadFile); // Use POST for file upload
+router.post("/upload", uploadFile); // Use POST for file upload
 
 module.exports = router;

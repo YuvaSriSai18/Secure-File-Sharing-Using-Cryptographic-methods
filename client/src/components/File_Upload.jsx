@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { FileUpload } from "primereact/fileupload";
 import forge from "node-forge";
 import {
@@ -6,66 +6,85 @@ import {
   encryptFile,
   encryptAesKeyWithRsa,
 } from "../functions/Encrypt_file";
+import * as API from "../apis/index";
 
-export default function File_Upload({ onFilesEncrypted }) {
-  const rsaPublicKeyPem = localStorage.getItem("publicKey");
+export default function File_Upload({ onFilesEncrypted, receiverId }) {
+  const [rsaPublicKeyPem, setRsaPublicKeyPem] = useState("");
+  const [uploadedFiles, setUploadedFiles] = useState([]);
+  const [loadingKey, setLoadingKey] = useState(true);
 
-  const [uploadedFiles, setUploadedFiles] = useState([]); // Track the files being uploaded
+  useEffect(() => {
+    const token = localStorage.getItem("accessToken");
+
+    const getPublicKey = async () => {
+      try {
+        const res = await API.getPublicKey(receiverId, token);
+        const pem = res.data?.publicKey || res.data; // handles both object and string
+        setRsaPublicKeyPem(pem);
+      } catch (err) {
+        console.log("Error fetching public key:", err);
+      } finally {
+        setLoadingKey(false);
+      }
+    };
+
+    if (receiverId) {
+      setLoadingKey(true); // ensure loading shows correctly for multiple receiverId changes
+      getPublicKey();
+    }
+  }, [receiverId]);
 
   const onUploadHandler = async ({ files }) => {
-    const limitedFiles = Array.from(files).slice(0, 4); // Limit to 4 files
-    const processedPayloads = [];
+    if (!rsaPublicKeyPem) {
+      console.warn("RSA public key not available yet.");
+      return;
+    }
 
-    // Check for duplicate files based on file name
+    const limitedFiles = Array.from(files).slice(0, 4);
     const uniqueFiles = limitedFiles.filter(
       (file) =>
         !uploadedFiles.some((uploadedFile) => uploadedFile.name === file.name)
     );
 
-    if (uniqueFiles.length === 0) {
-      // If no unique files, return early (no action)
-      return;
-    }
+    if (uniqueFiles.length === 0) return;
 
-    // Process each unique file
+    const processedPayloads = [];
+
     for (const file of uniqueFiles) {
-      // Add file to the uploaded list with a status 'pending'
       const newFile = { ...file, status: "pending" };
-      setUploadedFiles((prevFiles) => [...prevFiles, newFile]);
+      setUploadedFiles((prev) => [...prev, newFile]);
 
-      // Convert the file into an ArrayBuffer
-      const arrayBuffer = await file.arrayBuffer();
-      const fileBytes = forge.util.createBuffer(arrayBuffer).getBytes();
+      try {
+        const arrayBuffer = await file.arrayBuffer();
+        const fileBytes = forge.util.createBuffer(arrayBuffer).getBytes();
 
-      // Generate AES key and encrypt the file with it
-      const aesKey = generateAesKey();
-      const { encryptedFileData, iv, tag } = encryptFile(fileBytes, aesKey);
+        const aesKey = generateAesKey();
+        const { encryptedFileData, iv, tag } = encryptFile(fileBytes, aesKey);
+        const encryptedAESKey = encryptAesKeyWithRsa(aesKey, rsaPublicKeyPem);
 
-      // Encrypt the AES key with RSA
-      const encryptedAESKey = encryptAesKeyWithRsa(aesKey, rsaPublicKeyPem);
+        const payload = {
+          encryptedFileData: forge.util.encode64(encryptedFileData),
+          encryptedAESKey: forge.util.encode64(encryptedAESKey),
+          iv: forge.util.encode64(iv),
+          tag: forge.util.encode64(tag),
+          metadata: {
+            fileName: file.name,
+            fileSize: file.size,
+            fileType: file.type,
+          },
+        };
 
-      // Create a payload object containing the encrypted data
-      const payload = {
-        encryptedFileData, // The encrypted file data
-        encryptedAESKey, // The RSA encrypted AES key
-        iv, // The IV used for AES encryption
-        tag, // The tag for AES encryption
-        metadata: {
-          fileName: file.name,
-          fileSize: file.size,
-          fileType: file.type,
-        },
-      };
-      processedPayloads.push(payload);
+        processedPayloads.push(payload);
 
-      // Update the file status to completed
-      const updatedFile = { ...newFile, status: "completed" }; // Set status to 'completed'
-      setUploadedFiles((prevFiles) =>
-        prevFiles.map((f) => (f.name === file.name ? updatedFile : f))
-      );
+        const updatedFile = { ...newFile, status: "completed" };
+        setUploadedFiles((prevFiles) =>
+          prevFiles.map((f) => (f.name === file.name ? updatedFile : f))
+        );
+      } catch (error) {
+        console.error("Error processing file:", file.name, error);
+      }
     }
 
-    // Pass the encrypted payloads back to the parent component
     if (onFilesEncrypted) {
       onFilesEncrypted(processedPayloads);
     }
@@ -80,15 +99,14 @@ export default function File_Upload({ onFilesEncrypted }) {
         maxFileSize={1000000}
         customUpload
         uploadHandler={onUploadHandler}
-        files={uploadedFiles} // Display all uploaded files
+        files={uploadedFiles}
         emptyTemplate={
           <p className="m-0">
             Drag and drop up to 4 files to encrypt and attach.
           </p>
         }
         chooseLabel="Choose"
-        // Disable upload button when files are uploaded to the encrypted payloads
-        disabled={uploadedFiles.length > 0} // Disable upload button after files are uploaded
+        disabled={uploadedFiles.length > 0 || loadingKey}
       />
     </div>
   );

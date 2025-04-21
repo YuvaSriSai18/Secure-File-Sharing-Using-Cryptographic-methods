@@ -33,9 +33,13 @@ export const encryptFile = (fileBuffer, aesKey) => {
   };
 };
 
-// Encrypt AES key using RSA Public Key (PEM format)
 export const encryptAesKeyWithRsa = (aesKey, publicKeyPem) => {
-  const publicKey = forge.pki.publicKeyFromPem(publicKeyPem);
+  if (typeof publicKeyPem !== "string") {
+    throw new Error("Public key must be a string in PEM format");
+  }
+
+  const cleanedKey = publicKeyPem.replace(/\r\n/g, "\n");
+  const publicKey = forge.pki.publicKeyFromPem(cleanedKey);
   const encryptedKey = publicKey.encrypt(aesKey, "RSA-OAEP");
   return forge.util.encode64(encryptedKey);
 };
