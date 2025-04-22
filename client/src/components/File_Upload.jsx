@@ -1,11 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { FileUpload } from "primereact/fileupload";
 import forge from "node-forge";
-import {
-  encryptFileWithRsa,
-  generateAesKey,
-  generateIv,
-} from "../functions/Encrypt_file"; // Import functions for AES and RSA encryption
+import { encryptFileWithRsa } from "../functions/Encrypt_file"; // Import functions for AES and RSA encryption
 import * as API from "../apis/index"; // Import API calls
 
 export default function File_Upload({ onFilesEncrypted, receiverId }) {
