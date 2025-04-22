@@ -32,16 +32,21 @@ This backend system supports secure file sharing with encryption using RSA and A
 - Node-forge used for robust cryptographic operations.
 
 ---
+Here’s a clean summary of all the APIs you’ve listed in your Postman collection, formatted in a table:
 
-### 📘 API Endpoints
+---
 
-| **Method** | **Endpoint**                  | **Purpose**                                           | **Auth Token Required** |
-|------------|-------------------------------|--------------------------------------------------------|--------------------------|
-| `POST`     | `/api/auth/register`          | Register a new user and generate RSA key pair          | ❌ No                   |
-| `POST`     | `/api/auth/login`             | Authenticate user and return JWT                       | ❌ No                   |
-| `GET`      | `/api/files/my-files`         | Fetch all files sent or received by the user           | ✅ Yes                  |
-| `POST`     | `/api/files/upload`           | Upload and encrypt a file to a specific user           | ✅ Yes                  |
-| `POST`     | `/api/files/download`         | Decrypt and download a file using receiver's key       | ✅ Yes                  |
-| `POST`     | `/api/files/mark-downloaded/:fileId` | Mark a file as downloaded                         | ✅ Yes                  |
+### 📦 **Crypto API Endpoints**
+
+| **Name**                 | **Method** | **Endpoint**                                                       | **Description**                               |
+|--------------------------|------------|--------------------------------------------------------------------|------------------------------------------------|
+| **Sign Up**              | `POST`     | `/api/auth/signup`                                                | Registers a new user                          |
+| **Login**                | `POST`     | `/api/auth/login`                                                 | Authenticates a user and returns a token      |
+| **GET_PUBLIC_KEY**       | `GET`      | `/api/auth/public-key/:userId`                                    | Gets the public RSA key of a user             |
+| **get_Encrypted_PrivateKey** | `GET`  | `/api/auth/private-key/:userId`                                   | Gets the encrypted private key of a user      |
+| **GET_USERS**            | `GET`      | `/api/auth/users`                                                 | Retrieves all registered users                |
+| **GET_RECEIVED_FILES**   | `GET`      | `/api/files/my-files/:userId`                                     | Fetches files received by the user            |
+| **POST_MESSAGE (Upload)**| `POST`     | `/api/files/upload`                                               | Uploads encrypted file data and metadata      |
+| **TEST**                 | `GET`      | `/test`                                                            | Test route (likely for backend verification)  |
 
 ---
