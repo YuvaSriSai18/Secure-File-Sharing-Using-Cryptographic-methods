@@ -11,22 +11,43 @@ import {
   FaFileArchive,
   FaLock,
 } from "react-icons/fa";
+import { decryptAndDownloadFile } from "../functions/Decrypt_File";// Your full decrypt/download util
 
 export default function Receive_File_Card({ fileItem }) {
-  const [showDecrypted, setShowDecrypted] = useState(false);
+  const [error, setError] = useState(null);
 
-  // Function to return icon based on file type (MIME type)
   const getFileIconByType = (mimeType = "") => {
     const type = mimeType.toLowerCase();
-
     if (type.includes("image")) return <FaFileImage className="text-green-600 text-xl" />;
     if (type.includes("pdf")) return <FaFilePdf className="text-red-600 text-xl" />;
     if (type.includes("word")) return <FaFileWord className="text-blue-600 text-xl" />;
     if (type.includes("excel")) return <FaFileExcel className="text-green-800 text-xl" />;
     if (type.includes("zip") || type.includes("rar")) return <FaFileArchive className="text-yellow-600 text-xl" />;
     if (type.includes("text") || type.includes("plain")) return <FaFileAlt className="text-gray-600 text-xl" />;
-    
-    return <FaFileAlt className="text-gray-500 text-xl" />; // default generic file icon
+    return <FaFileAlt className="text-gray-500 text-xl" />;
+  };
+
+  const handleDecryptAndDownload = async (file) => {
+    const privateKey = localStorage.getItem("privateKey");
+
+    if (!privateKey) {
+      setError("Private key not found in localStorage.");
+      return;
+    }
+
+    try {
+      await decryptAndDownloadFile({
+        encryptedFileData: file.encryptedFileData,
+        encryptedAESKey: file.encryptedAESKey,
+        iv: file.iv,
+        tag: file.tag,
+        metadata: file.metadata,
+        rsaPrivateKeyPem: privateKey,
+      });
+    } catch (err) {
+      setError("Decryption or download failed.");
+      console.error("Error during decrypt & download:", err);
+    }
   };
 
   return (
@@ -37,9 +58,7 @@ export default function Receive_File_Card({ fileItem }) {
             From: <span className="text-blue-800">{fileItem.sender.name}</span>
           </div>
         }
-        subTitle={
-          <span className="text-sm text-gray-500">{fileItem.sender.email}</span>
-        }
+        subTitle={<span className="text-sm text-gray-500">{fileItem.sender.email}</span>}
         className="shadow-md rounded-2xl border border-gray-200 mb-6 transition hover:shadow-xl"
       >
         <div className="text-sm text-gray-500 mb-2">
@@ -66,49 +85,31 @@ export default function Receive_File_Card({ fileItem }) {
               return (
                 <div
                   key={file._id}
-                  className="flex items-start gap-3 p-2 bg-white rounded-md border border-gray-200 shadow-sm"
+                  className="flex items-start gap-3 p-2 bg-white rounded-md border border-gray-200 shadow-sm justify-between"
                 >
-                  <div className="mt-1">{getFileIconByType(fileType)}</div>
-                  <div className="flex-1 text-sm">
-                    <p className="font-medium">
-                      {file.metadata?.fileName || `File ${idx + 1}`}
-                    </p>
-                    {!showDecrypted ? (
+                  <div className="flex gap-3">
+                    <div className="mt-1">{getFileIconByType(fileType)}</div>
+                    <div className="text-sm">
+                      <p className="font-medium">
+                        {file.metadata?.fileName || `File ${idx + 1}`}
+                      </p>
                       <p className="text-gray-400 italic">Encrypted</p>
-                    ) : (
-                      <div className="text-xs text-gray-600 space-y-1 break-words">
-                        <p>
-                          <span className="font-semibold">Type:</span>{" "}
-                          {fileType.toUpperCase()}
-                        </p>
-                        <p>
-                          <span className="font-semibold">AES Key:</span>{" "}
-                          {file.encryptedAESKey?.slice(0, 40)}...
-                        </p>
-                        <p>
-                          <span className="font-semibold">IV:</span> {file.iv}
-                        </p>
-                        <p>
-                          <span className="font-semibold">Tag:</span> {file.tag}
-                        </p>
-                      </div>
-                    )}
+                    </div>
                   </div>
+                  <Button
+                    label="Decrypt & Download"
+                    icon="pi pi-download"
+                    className="p-button-sm p-button-success"
+                    onClick={() => handleDecryptAndDownload(file)}
+                  />
                 </div>
               );
             })}
           </div>
         </div>
-
-        <div className="mt-4 flex justify-end">
-          <Button
-            label={showDecrypted ? "Hide Details" : "Decrypt"}
-            icon={showDecrypted ? "pi pi-eye-slash" : "pi pi-lock-open"}
-            className="p-button-sm"
-            onClick={() => setShowDecrypted((prev) => !prev)}
-          />
-        </div>
       </Card>
+
+      {error && <div className="text-red-600 text-sm mt-2">{error}</div>}
     </div>
   );
 }

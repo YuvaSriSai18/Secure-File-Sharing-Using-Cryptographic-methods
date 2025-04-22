@@ -78,7 +78,7 @@ const getMyFiles = async (req, res) => {
 
     const files = await File.find({ receiver: userId })
       .populate("sender", "name email") // populate useful sender info only
-      .sort({ index: 1 });
+      .sort({ createdAt: -1 }); // sort by creation date in descending order
 
     // if (!files || files.length === 0) {
     //   return res.status(404).json({ message: "No files found for this user." });
