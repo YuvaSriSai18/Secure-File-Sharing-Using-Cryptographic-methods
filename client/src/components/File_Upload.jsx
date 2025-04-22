@@ -107,7 +107,7 @@ export default function File_Upload({ onFilesEncrypted, receiverId }) {
         name="files"
         multiple
         accept="*"
-        maxFileSize={1000000} // Set the maximum file size to 1MB (adjust as needed)
+        maxFileSize={1000000000} // Set the maximum file size to 1MB (adjust as needed)
         customUpload
         uploadHandler={onUploadHandler}
         files={uploadedFiles}

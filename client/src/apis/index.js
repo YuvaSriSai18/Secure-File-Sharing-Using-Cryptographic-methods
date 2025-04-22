@@ -1,7 +1,7 @@
 import axios from "axios";
 
 const API = axios.create({
-  baseURL: `http://localhost:5500`,
+  baseURL: `https://4kw2djt9-5500.inc1.devtunnels.ms`,
 });
 
 export const registerUser = async (userData) =>

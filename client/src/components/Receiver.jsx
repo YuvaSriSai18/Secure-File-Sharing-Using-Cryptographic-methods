@@ -34,7 +34,7 @@ export default function Receiver() {
   }, []);
 
   return (
-    <div className="p-6 bg-gray-100 min-h-screen">
+    <div className="p-6 bg-gray-100 min-h-screen  w-5/6 m-auto rounded-lg mt-10">
       <ToastComponent ref={toastRef} />
       <h2 className="text-2xl font-semibold mb-4">Received Files</h2>
       {ReceivedFiles.length === 0 ? (
