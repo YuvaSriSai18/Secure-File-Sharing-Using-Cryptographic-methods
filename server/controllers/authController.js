@@ -36,8 +36,8 @@ const signUp = async (req, res) => {
 
     res.status(201).json({ message: "Signup successful" });
   } catch (error) {
-    console.error(err);
-    res.status(500).json({ message: "Signup failed", error: err.message });
+    console.error(error);
+    res.status(500).json({ message: "Signup failed", error: error.message });
   }
 };
 
@@ -59,7 +59,7 @@ const login = async (req, res) => {
 
     res.status(200).json({ token, userId: user._id, name: user.name });
   } catch (error) {
-    res.status(500).json({ message: "Login failed", error: err.message });
+    res.status(500).json({ message: "Login failed", error: error.message });
   }
 };
 
